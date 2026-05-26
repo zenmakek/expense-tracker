@@ -20,3 +20,11 @@ func load() ([]Expense, error) {
 	err = json.Unmarshal(data, &expenses)
 	return expenses, err
 }
+
+func save(expenses []Expense) error {
+	data, err := json.MarshalIndent(expenses, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(fpath, data, 0644)
+}
