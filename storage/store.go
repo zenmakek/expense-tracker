@@ -28,3 +28,7 @@ func save(expenses []Expense) error {
 	}
 	return os.WriteFile(fpath, data, 0644)
 }
+
+func List() ([]Expense, error) {
+	return load()
+}
