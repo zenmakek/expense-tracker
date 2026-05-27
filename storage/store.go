@@ -59,3 +59,38 @@ func Add(description string, amount float64) (int, error) {
 	return id, save(expenses)
 
 }
+
+// Delete: removes an expense
+func Delete(id int) error {
+	expenses, err := load()
+	if err != nil {
+		return err
+	}
+	for i, e := range expenses {
+		if e.ID == id {
+			expenses = append(expenses[:i], expenses[i+1:]...)
+			return save(expenses)
+		}
+	}
+	return errors.New("expense not found")
+}
+
+// Update: changes the existing value in an expense entry
+func Update(id int, description string, amount float64) error {
+	expenses, err := load()
+	if err != nil {
+		return err
+	}
+	for i, e := range expenses {
+		if e.ID == id {
+			if description != "" {
+				expenses[i].Description = description
+			}
+			if amount > 0 {
+				expenses[i].Amount = amount
+			}
+			return save(expenses)
+		}
+	}
+	return errors.New("expense not found")
+}
