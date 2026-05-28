@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "description": "Payment1",
+    "amount": 50,
+    "date": "2026-05-29T00:50:39.251714457+05:30"
+  },
+  {
+    "id": 2,
+    "description": "Payment1",
+    "amount": 50,
+    "date": "2026-05-29T00:50:56.319858142+05:30"
+  },
+  {
+    "id": 3,
+    "description": "Payment1",
+    "amount": -1,
+    "date": "2026-05-29T00:51:19.885516033+05:30"
+  }
+]
