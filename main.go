@@ -21,12 +21,22 @@ var addCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		desc, _ := cmd.Flags().GetString("description")
 		amount, _ := cmd.Flags().GetFloat64("amount")
+
+		if desc == "" {
+			fmt.Println("Error: description cannot be empty")
+			os.Exit(1)
+		}
+		if amount <= 0 {
+			fmt.Println("Error: amount must be greater than zero")
+			os.Exit(1)
+		}
+
 		id, err := storage.Add(desc, amount)
 		if err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)
 		}
-		fmt.Printf("Expense added! (ID: %d\n)", id)
+		fmt.Printf("Expense added! (ID: %d)\n", id)
 
 	},
 }
@@ -66,6 +76,11 @@ var deleteCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		id, _ := cmd.Flags().GetInt("id")
 
+		if id <= 0 {
+			fmt.Println("Error: ID must be a positive integer")
+			os.Exit(1)
+		}
+
 		err := storage.Delete(id)
 		if err != nil {
 			fmt.Println("Error:", err)
@@ -83,6 +98,15 @@ var updateCmd = &cobra.Command{
 		desc, _ := cmd.Flags().GetString("description")
 		amount, _ := cmd.Flags().GetFloat64("amount")
 
+		if id <= 0 {
+			fmt.Println("Error: ID must be a positive integer")
+			os.Exit(1)
+		}
+		if desc == "" && amount == 0 {
+			fmt.Println("Error: provide at least --description or --amount to update")
+			os.Exit(1)
+		}
+
 		err := storage.Update(id, desc, amount)
 		if err != nil {
 			fmt.Println("Error:", err)
@@ -98,6 +122,11 @@ var summaryCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
 		month, _ := cmd.Flags().GetInt("month")
+
+		if month < 0 || month > 12 {
+			fmt.Println("Error: month must be between 1 and 12 (or 0 for all)")
+			os.Exit(1)
+		}
 
 		expenses, err := storage.List()
 		if err != nil {

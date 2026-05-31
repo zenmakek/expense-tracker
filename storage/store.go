@@ -3,6 +3,7 @@ package storage
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"time"
 )
@@ -39,6 +40,14 @@ func List() ([]Expense, error) {
 
 // Add: creates a new expense with the given description and amount.
 func Add(description string, amount float64) (int, error) {
+
+	if description == "" {
+		return 0, errors.New("description cannot be empty")
+	}
+	if amount <= 0 {
+		return 0, errors.New("amount must be greater than zero")
+	}
+
 	expenses, err := load()
 	if err != nil {
 		return 0, err
@@ -62,6 +71,11 @@ func Add(description string, amount float64) (int, error) {
 
 // Delete: removes an expense
 func Delete(id int) error {
+
+	if id <= 0 {
+		return errors.New("ID must be greater than zero")
+	}
+
 	expenses, err := load()
 	if err != nil {
 		return err
@@ -77,6 +91,14 @@ func Delete(id int) error {
 
 // Update: changes the existing value in an expense entry
 func Update(id int, description string, amount float64) error {
+
+	if id <= 0 {
+		return errors.New("ID must be greater than zero")
+	}
+	if amount < 0 {
+		return fmt.Errorf("expense with ID %d not found", id)
+	}
+
 	expenses, err := load()
 	if err != nil {
 		return err
