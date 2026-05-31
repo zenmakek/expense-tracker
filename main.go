@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"text/tabwriter"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -74,16 +75,78 @@ var deleteCmd = &cobra.Command{
 	},
 }
 
-func main() {
-	// id, err := storage.Add("Payment1", -1)
-	// if err != nil {
-	// 	fmt.Println("Error:", err)
-	// 	return
-	// }
+var updateCmd = &cobra.Command{
+	Use:   "update",
+	Short: "Update an existing expense",
+	Run: func(cmd *cobra.Command, args []string) {
+		id, _ := cmd.Flags().GetInt("id")
+		desc, _ := cmd.Flags().GetString("description")
+		amount, _ := cmd.Flags().GetFloat64("amount")
 
-	// fmt.Printf("Added expense with ID: %d\n", id)
-	// expenses, _ := storage.List()
-	// for _, e := range expenses {
-	// 	fmt.Printf("[%d] %s — $%.2f\n", e.ID, e.Description, e.Amount)
-	// }
+		err := storage.Update(id, desc, amount)
+		if err != nil {
+			fmt.Println("Error:", err)
+			os.Exit(1)
+		}
+		fmt.Println("Expense updated successfully")
+	},
+}
+
+var summaryCmd = &cobra.Command{
+	Use:   "summary",
+	Short: "Show total expense summary",
+
+	Run: func(cmd *cobra.Command, args []string) {
+		month, _ := cmd.Flags().GetInt("month")
+
+		expenses, err := storage.List()
+		if err != nil {
+			fmt.Println("Error:", err)
+			os.Exit(1)
+		}
+
+		var total float64
+		for _, e := range expenses {
+			if month == 0 || int(e.Date.Month()) == month {
+				total += e.Amount
+			}
+		}
+		if month == 0 {
+			fmt.Printf("Total Expenses: Rs%.2f\n", total)
+		} else {
+			fmt.Printf("Total Expenses for %s: Rs.%.2f\n", time.Month(month).String(), total)
+		}
+
+	},
+}
+
+func init() {
+
+	addCmd.Flags().String("description", "", "Description of the expense")
+	addCmd.Flags().Float64("amount", 0, "Amount of the expense")
+	addCmd.MarkFlagRequired("description")
+	addCmd.MarkFlagRequired("amount")
+
+	deleteCmd.Flags().Int("id", 0, "ID of the expense to delete")
+	deleteCmd.MarkFlagRequired("id")
+
+	updateCmd.Flags().Int("id", 0, "ID of the expense to update")
+	updateCmd.Flags().String("description", "", "New description")
+	updateCmd.Flags().Float64("amount", 0, "New amount")
+	updateCmd.MarkFlagRequired("id")
+
+	summaryCmd.Flags().Int("month", 0, "Month number (1-12), 0 = all")
+
+	rootCmd.AddCommand(addCmd)
+	rootCmd.AddCommand(listCmd)
+	rootCmd.AddCommand(deleteCmd)
+	rootCmd.AddCommand(updateCmd)
+	rootCmd.AddCommand(summaryCmd)
+}
+
+func main() {
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
