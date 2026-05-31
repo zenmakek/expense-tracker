@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -39,7 +40,7 @@ func List() ([]Expense, error) {
 }
 
 // Add: creates a new expense with the given description and amount.
-func Add(description string, amount float64) (int, error) {
+func Add(description string, amount float64, category string) (int, error) {
 
 	if description == "" {
 		return 0, errors.New("description cannot be empty")
@@ -62,6 +63,7 @@ func Add(description string, amount float64) (int, error) {
 		Description: description,
 		Amount:      amount,
 		Date:        time.Now(),
+		Category:    strings.ToLower(category),
 	}
 
 	expenses = append(expenses, expense)
@@ -115,4 +117,18 @@ func Update(id int, description string, amount float64) error {
 		}
 	}
 	return errors.New("expense not found")
+}
+
+func ListByCategory(category string) ([]Expense, error) {
+	expenses, err := load()
+	if err != nil {
+		return nil, err
+	}
+	var filtered []Expense
+	for _, e := range expenses {
+		if strings.EqualFold(e.Category, category) {
+			filtered = append(filtered, e)
+		}
+	}
+	return filtered, nil
 }
